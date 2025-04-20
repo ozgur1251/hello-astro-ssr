@@ -1,0 +1,69 @@
+name: Deploy Astro SSR App
+
+# Hangi olaylarda çalışacak? Sadece 'main' branch'ine push yapıldığında.
+# Eğer branch adınız 'master' ise aşağıdaki 'main'i 'master' olarak değiştirin.
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest # Action'ın çalışacağı sanal makine
+
+    steps:
+    # 1. Kodu GitHub reposundan Action ortamına indirir
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 2. Docker Buildx'i ayarlar (daha hızlı build için)
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    # 3. GitHub Container Registry'ye (GHCR) login olur
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ secrets.GHCR_USERNAME }} # GitHub Secret'tan alır
+        password: ${{ secrets.GHCR_TOKEN }}   # GitHub Secret'tan alır
+
+    # 4. Docker imajını build eder ve GHCR'ye pushlar
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v6
+      with:
+        context: . # Dockerfile'ın olduğu yer (proje kök dizini)
+        push: true # Pushlamayı etkinleştir
+        # İmaj etiketi: ghcr.io/KULLANICI_ADINIZ/REPO_ADINIZ:latest
+        # Kendi kullanıcı adınızı ve repo adınızı kontrol edin!
+        tags: ghcr.io/${{ github.repository_owner }}/hello-astro-ssr:latest
+        cache-from: type=gha # Build cache'ini kullan
+        cache-to: type=gha,mode=max
+
+    # 5. SSH ile sunucuya bağlanır ve dağıtım komutlarını çalıştırır
+    - name: Deploy to Server via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.DOCKER_SERVER_IP }}         # Secret'tan sunucu IP'si
+        username: ${{ secrets.DOCKER_SERVER_USER }}   # Secret'tan sunucu kullanıcı adı (root)
+        key: ${{ secrets.DOCKER_SERVER_SSH_KEY }}     # Secret'tan SSH private key
+        script: | # Sunucuda çalıştırılacak komutlar (her satır ayrı komut)
+          # Güvenlik için GHCR'ye tekrar login ol
+          echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
+
+          # Yeni Docker imajını GHCR'den çek
+          docker pull ghcr.io/${{ github.repository_owner }}/hello-astro-ssr:latest
+
+          # Çalışan eski konteyneri durdur (hata verirse önemseme - || true)
+          docker stop hello-astro-app || true
+          # Çalışan eski konteyneri kaldır (hata verirse önemseme - || true)
+          docker rm hello-astro-app || true
+
+          # Yeni imajla yeni konteyneri başlat
+          # -d: detach (arka planda çalış)
+          # -p 4321:4321: host portunu konteyner portuna bağla
+          # --name: konteynere isim ver
+          # --restart always: sunucu yeniden başlarsa otomatik başla
+          docker run -d -p 4321:4321 --name hello-astro-app --restart always ghcr.io/${{ github.repository_owner }}/hello-astro-ssr:latest
+
+          # Kullanılmayan (dangling) Docker imajlarını temizle (isteğe bağlı)
+          docker image prune -f
