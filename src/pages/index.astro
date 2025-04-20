@@ -1,6 +1,5 @@
 ---
-// Bu kod sunucuda çalışacak (SSR)
-const currentTime = new Date().toLocaleTimeString('tr-TR');
+// Sunucu tarafı kodu şimdilik kaldıralım
 ---
 <html lang="tr">
 <head>
@@ -8,12 +7,10 @@ const currentTime = new Date().toLocaleTimeString('tr-TR');
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <title>Merhaba Astro SSR</title>
+    <title>Çok Basit Astro</title>
 </head>
 <body>
-    <h1>Merhaba Dünya! (Astro SSR)</h1>
-    <p>Bu sayfa sunucuda oluşturuldu.</p>
-    <p>Sunucu Saati: {currentTime}</p>
-    <p>Sayfayı yenilediğinizde saatin güncellendiğini göreceksiniz.</p>
+    <h1>Sadece HTML!</h1>
+    <p>Bu sayfa çalışmalı.</p>
 </body>
 </html>
