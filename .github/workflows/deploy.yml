@@ -36,6 +36,7 @@ jobs:
         # İmaj etiketi: ghcr.io/KULLANICI_ADINIZ/REPO_ADINIZ:latest
         # Kendi kullanıcı adınızı ve repo adınızı kontrol edin!
         tags: ghcr.io/${{ github.repository_owner }}/hello-astro-ssr:latest
+	platforms: linux/arm64  # <-- BU SATIRI EKLEYİN
         cache-from: type=gha # Build cache'ini kullan
         cache-to: type=gha,mode=max
 
