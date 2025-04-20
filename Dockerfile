@@ -1,6 +1,6 @@
 # ---- Base Stage ----
 # Tam sürümü belirtelim
-FROM node:18.20.8-alpine AS base
+FROM node:18.20.8-bookworm-slim AS base
 WORKDIR /app
 
 # ---- Dependencies Stage ----
