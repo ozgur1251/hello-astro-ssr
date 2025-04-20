@@ -1,16 +1,19 @@
 ---
-
+// Bu kod sunucuda çalışacak (SSR)
+const currentTime = new Date().toLocaleTimeString('tr-TR');
 ---
-
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Merhaba Astro SSR</title>
+</head>
+<body>
+    <h1>Merhaba Dünya! (Astro SSR)</h1>
+    <p>Bu sayfa sunucuda oluşturuldu.</p>
+    <p>Sunucu Saati: {currentTime}</p>
+    <p>Sayfayı yenilediğinizde saatin güncellendiğini göreceksiniz.</p>
+</body>
 </html>
