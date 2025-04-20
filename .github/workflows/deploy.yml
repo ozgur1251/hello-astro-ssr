@@ -24,8 +24,8 @@ jobs:
       uses: docker/login-action@v3
       with:
         registry: ghcr.io
-        username: ${{ secrets.GHCR_USERNAME }} # GitHub Secret'tan alır
-        password: ${{ secrets.GHCR_TOKEN }}   # GitHub Secret'tan alır
+        username: ${{ github.actor }} # Secret yerine actor kullanıyoruz
+        password: ${{ secrets.GHCR_TOKEN }}   # GitHub Secret'tan PAT'ı alır
 
     # 4. Docker imajını build eder ve GHCR'ye pushlar
     - name: Build and push Docker image
@@ -34,9 +34,8 @@ jobs:
         context: . # Dockerfile'ın olduğu yer (proje kök dizini)
         push: true # Pushlamayı etkinleştir
         # İmaj etiketi: ghcr.io/KULLANICI_ADINIZ/REPO_ADINIZ:latest
-        # Kendi kullanıcı adınızı ve repo adınızı kontrol edin!
         tags: ghcr.io/${{ github.repository_owner }}/hello-astro-ssr:latest
-	platforms: linux/arm64  # <-- DOĞRU GİRİNTİ (Diğerleriyle aynı hizada)
+        platforms: linux/arm64  # Sunucumuzun mimarisi için build et
         cache-from: type=gha # Build cache'ini kullan
         cache-to: type=gha,mode=max
 
@@ -49,9 +48,9 @@ jobs:
         key: ${{ secrets.DOCKER_SERVER_SSH_KEY }}     # Secret'tan SSH private key
         script: | # Sunucuda çalıştırılacak komutlar (her satır ayrı komut)
           # Güvenlik için GHCR'ye tekrar login ol
-          echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
+          echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-          # Yeni Docker imajını GHCR'den çek
+          # Yeni Docker imajını GHCR'den çek (arm64 versiyonunu)
           docker pull ghcr.io/${{ github.repository_owner }}/hello-astro-ssr:latest
 
           # Çalışan eski konteyneri durdur (hata verirse önemseme - || true)
