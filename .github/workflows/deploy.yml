@@ -63,7 +63,7 @@ jobs:
           # -p 4321:4321: host portunu konteyner portuna bağla
           # --name: konteynere isim ver
           # --restart always: sunucu yeniden başlarsa otomatik başla
-          docker run -d -p 4321:4321 --name hello-astro-app --restart always ghcr.io/${{ github.repository_owner }}/hello-astro-ssr:latest
+          docker run -d --network host --name hello-astro-app --restart always ghcr.io/${{ github.repository_owner }}/hello-astro-ssr:latest
 
           # Kullanılmayan (dangling) Docker imajlarını temizle (isteğe bağlı)
           docker image prune -f
